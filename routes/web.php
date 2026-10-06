@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AssessmentReportController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\ProjectOutputController;
 use App\Http\Controllers\ProjectRiskController;
 use Illuminate\Support\Facades\Route;
@@ -76,6 +78,61 @@ Route::get(
 )
     ->middleware('auth')
     ->name('projects.show');
+
+/*
+|--------------------------------------------------------------------------
+| Project Document Routes
+|--------------------------------------------------------------------------
+*/
+
+/*
+| Every authenticated user can view and download
+| documents belonging to a project.
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get(
+        '/projects/{project}/documents',
+        [
+            ProjectDocumentController::class,
+            'index',
+        ]
+    )->name('projects.documents.index');
+
+    Route::get(
+        '/projects/{project}/documents/{document}/download',
+        [
+            ProjectDocumentController::class,
+            'download',
+        ]
+    )->name('projects.documents.download');
+});
+
+/*
+| Admins, Project Officers and Analysts can upload
+| and delete project documents.
+*/
+
+Route::middleware([
+    'auth',
+    'role:admin,project_officer,analyst',
+])->group(function () {
+    Route::post(
+        '/projects/{project}/documents',
+        [
+            ProjectDocumentController::class,
+            'store',
+        ]
+    )->name('projects.documents.store');
+
+    Route::delete(
+        '/projects/{project}/documents/{document}',
+        [
+            ProjectDocumentController::class,
+            'destroy',
+        ]
+    )->name('projects.documents.destroy');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -241,7 +298,7 @@ Route::view(
             [
                 'title' => 'Upload Documents',
                 'description' =>
-                    'Upload PDF, Word and Excel documents.',
+                    'Upload PDF and Word documents.',
             ],
             [
                 'title' => 'Track Progress',
@@ -303,9 +360,18 @@ Route::middleware([
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::view(
+        /*
+        | The DashboardController provides:
+        | - Total projects
+        | - Completed projects
+        | - Assessment report count
+        | - Active user count
+        | - Recent projects
+        */
+
+        Route::get(
             '/',
-            'admin.dashboard'
+            [DashboardController::class, 'index']
         )->name('dashboard');
 
         Route::resource(

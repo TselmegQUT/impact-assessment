@@ -1,217 +1,272 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
 
-    <title>Edit User</title>
+@section('title', 'Edit User')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+@section('page-title', 'Edit User')
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #eef4f1;
-            color: #1f2937;
-        }
+@section('content')
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 40px;
-            color: white;
-            background: #14532d;
-        }
+    <section class="page-header">
+        <div class="page-header-copy">
+            <h2>Edit User Account</h2>
 
-        header a {
-            color: white;
-            text-decoration: none;
-        }
-
-        main {
-            max-width: 650px;
-            margin: 40px auto;
-            padding: 35px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        label {
-            display: block;
-            margin: 18px 0 7px;
-            font-weight: bold;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .hint {
-            margin-top: 5px;
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .errors {
-            margin-bottom: 20px;
-            padding: 14px;
-            color: #991b1b;
-            background: #fee2e2;
-            border-radius: 6px;
-        }
-
-        .errors ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        button,
-        .cancel {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        button {
-            color: white;
-            background: #15803d;
-        }
-
-        button:hover {
-            background: #166534;
-        }
-
-        .cancel {
-            color: #334155;
-            background: #e2e8f0;
-        }
-    </style>
-</head>
-
-<body>
-    <header>
-        <strong>Impact Assessment System</strong>
-
-        <a href="{{ route('admin.users.index') }}">
-            User Management
-        </a>
-    </header>
-
-    <main>
-        <h1>Edit User</h1>
-
-        <p>Update the account information and system role.</p>
-
-        @if($errors->any())
-            <div class="errors">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form
-            method="POST"
-            action="{{ route('admin.users.update', $user) }}"
-        >
-            @csrf
-            @method('PUT')
-
-            <label for="name">Full name</label>
-
-            <input
-                id="name"
-                name="name"
-                type="text"
-                value="{{ old('name', $user->name) }}"
-                required
-            >
-
-            <label for="email">Email address</label>
-
-            <input
-                id="email"
-                name="email"
-                type="email"
-                value="{{ old('email', $user->email) }}"
-                required
-            >
-
-            <label for="role_id">System role</label>
-
-            <select id="role_id" name="role_id" required>
-                @foreach($roles as $role)
-                    <option
-                        value="{{ $role->id }}"
-                        @selected(
-                            old('role_id', $user->role_id) == $role->id
-                        )
-                    >
-                        {{ $role->display_name }}
-                    </option>
-                @endforeach
-            </select>
-
-            <label for="password">New password</label>
-
-            <input
-                id="password"
-                name="password"
-                type="password"
-            >
-
-            <p class="hint">
-                Leave this empty if you do not want to change the password.
+            <p>
+                Update account information, change the system role
+                or assign a new password.
             </p>
+        </div>
 
-            <label for="password_confirmation">
-                Confirm new password
-            </label>
-
-            <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
+        <div class="page-actions">
+            <a
+                href="{{ route('admin.users.index') }}"
+                class="button button-secondary"
             >
+                ← Back to Users
+            </a>
+        </div>
+    </section>
 
-            <div class="buttons">
-                <button type="submit">
-                    Save Changes
-                </button>
+    <form
+        method="POST"
+        action="{{
+            route(
+                'admin.users.update',
+                $user
+            )
+        }}"
+    >
+        @csrf
+        @method('PUT')
 
-                <a
-                    class="cancel"
-                    href="{{ route('admin.users.index') }}"
-                >
-                    Cancel
-                </a>
+        <section
+            class="panel"
+            style="max-width: 900px;"
+        >
+            <div class="panel-header">
+                <div>
+                    <h2>Account Information</h2>
+                </div>
+
+                @if($user->is_active)
+                    <span
+                        class="status-badge status-success"
+                    >
+                        Active
+                    </span>
+                @else
+                    <span
+                        class="status-badge status-danger"
+                    >
+                        Inactive
+                    </span>
+                @endif
             </div>
-        </form>
-    </main>
-</body>
-</html>
+
+            <div class="panel-body">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label
+                            for="name"
+                            class="form-label"
+                        >
+                            Full Name *
+                        </label>
+
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            class="form-control"
+                            value="{{
+                                old(
+                                    'name',
+                                    $user->name
+                                )
+                            }}"
+                            autocomplete="name"
+                            required
+                        >
+
+                        @error('name')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="email"
+                            class="form-label"
+                        >
+                            Email Address *
+                        </label>
+
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            class="form-control"
+                            value="{{
+                                old(
+                                    'email',
+                                    $user->email
+                                )
+                            }}"
+                            autocomplete="email"
+                            required
+                        >
+
+                        @error('email')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label
+                            for="role_id"
+                            class="form-label"
+                        >
+                            System Role *
+                        </label>
+
+                        <select
+                            id="role_id"
+                            name="role_id"
+                            class="form-control"
+                            required
+                        >
+                            @foreach($roles as $role)
+                                <option
+                                    value="{{ $role->id }}"
+                                    @selected(
+                                        old(
+                                            'role_id',
+                                            $user->role_id
+                                        ) == $role->id
+                                    )
+                                >
+                                    {{ $role->display_name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <span class="form-help">
+                            Changing the role will change the
+                            pages and actions this user can access.
+                        </span>
+
+                        @error('role_id')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="panel"
+            style="
+                max-width: 900px;
+                margin-top: 22px;
+            "
+        >
+            <div class="panel-header">
+                <div>
+                    <h2>Change Password</h2>
+                </div>
+
+                <span class="status-badge status-neutral">
+                    Optional
+                </span>
+            </div>
+
+            <div class="panel-body">
+                <p
+                    style="
+                        margin-top: 0;
+                        color: var(--text-secondary);
+                        line-height: 1.6;
+                    "
+                >
+                    Leave both password fields empty if you do
+                    not want to change this user’s password.
+                </p>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label
+                            for="password"
+                            class="form-label"
+                        >
+                            New Password
+                        </label>
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-control"
+                            autocomplete="new-password"
+                        >
+
+                        @error('password')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="password_confirmation"
+                            class="form-label"
+                        >
+                            Confirm New Password
+                        </label>
+
+                        <input
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            class="form-control"
+                            autocomplete="new-password"
+                        >
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="panel"
+            style="
+                max-width: 900px;
+                margin-top: 22px;
+            "
+        >
+            <div class="panel-body">
+                <div class="page-actions">
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                    >
+                        Save Changes
+                    </button>
+
+                    <a
+                        href="{{ route('admin.users.index') }}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </section>
+    </form>
+
+@endsection

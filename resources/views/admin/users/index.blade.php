@@ -1,214 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
 
-    <title>User Management</title>
+@section('title', 'User Management')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+@section('page-title', 'User Management')
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #eef4f1;
-            color: #1f2937;
-        }
+@section('content')
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 40px;
-            color: white;
-            background: #14532d;
-        }
+    <section class="page-header">
+        <div class="page-header-copy">
+            <h2>System Users</h2>
 
-        header a {
-            color: white;
-            text-decoration: none;
-        }
+            <p>
+                Create user accounts, assign system roles and
+                control access to the Impact Assessment System.
+            </p>
+        </div>
 
-        main {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        }
-
-        .top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .create-button {
-            padding: 11px 18px;
-            border-radius: 6px;
-            color: white;
-            background: #15803d;
-            text-decoration: none;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 14px;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-        }
-
-        th {
-            color: #334155;
-            background: #f8fafc;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .active {
-            color: #166534;
-            background: #dcfce7;
-        }
-
-        .inactive {
-            color: #991b1b;
-            background: #fee2e2;
-        }
-
-        .success-message {
-            margin-bottom: 20px;
-            padding: 12px;
-            color: #166534;
-            background: #dcfce7;
-            border-radius: 6px;
-        }
-
-        .error-message {
-            margin-bottom: 20px;
-            padding: 12px;
-            color: #991b1b;
-            background: #fee2e2;
-            border-radius: 6px;
-        }
-
-        .actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .actions form {
-            margin: 0;
-        }
-
-        .edit-button,
-        .status-button {
-            display: inline-block;
-            padding: 7px 11px;
-            border: none;
-            border-radius: 5px;
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .edit-button {
-            color: white;
-            background: #2563eb;
-        }
-
-        .deactivate-button {
-            color: white;
-            background: #dc2626;
-        }
-
-        .activate-button {
-            color: white;
-            background: #15803d;
-        }
-
-        .current-user {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 24px;
-        }
-
-        .pagination a {
-            color: #15803d;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
-</head>
-
-<body>
-    <header>
-        <strong>Impact Assessment System</strong>
-
-        <a href="{{ route('admin.dashboard') }}">
-            Administrator Dashboard
-        </a>
-    </header>
-
-    <main>
-        <div class="top-row">
-            <div>
-                <h1>User Management</h1>
-                <p>Create users and assign their system roles.</p>
-            </div>
-
+        <div class="page-actions">
             <a
-                class="create-button"
                 href="{{ route('admin.users.create') }}"
+                class="button button-primary"
             >
                 + Create User
             </a>
         </div>
+    </section>
 
-        @if(session('success'))
-            <div class="success-message">
-                {{ session('success') }}
-            </div>
-        @endif
+    {{-- User summary --}}
+    <section class="metric-grid">
+        <article class="metric-card">
+            <p class="metric-label">
+                Total Users
+            </p>
 
-        @if(session('error'))
-            <div class="error-message">
-                {{ session('error') }}
+            <p class="metric-value">
+                {{ $users->total() }}
+            </p>
+
+            <p class="metric-helper">
+                Registered system accounts
+            </p>
+        </article>
+
+        <article class="metric-card">
+            <p class="metric-label">
+                Users on This Page
+            </p>
+
+            <p class="metric-value">
+                {{ $users->count() }}
+            </p>
+
+            <p class="metric-helper">
+                Currently displayed accounts
+            </p>
+        </article>
+
+        <article class="metric-card">
+            <p class="metric-label">
+                Active on This Page
+            </p>
+
+            <p class="metric-value">
+                {{
+                    $users->getCollection()
+                        ->where('is_active', true)
+                        ->count()
+                }}
+            </p>
+
+            <p class="metric-helper">
+                Accounts with system access
+            </p>
+        </article>
+
+        <article class="metric-card">
+            <p class="metric-label">
+                Inactive on This Page
+            </p>
+
+            <p class="metric-value">
+                {{
+                    $users->getCollection()
+                        ->where('is_active', false)
+                        ->count()
+                }}
+            </p>
+
+            <p class="metric-helper">
+                Access currently disabled
+            </p>
+        </article>
+    </section>
+
+    {{-- User table --}}
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>All User Accounts</h2>
             </div>
-        @endif
+
+            <span class="status-badge status-neutral">
+                {{ $users->total() }}
+                {{ Str::plural('user', $users->total()) }}
+            </span>
+        </div>
 
         <div class="table-container">
-            <table>
+            <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
+                        <th>User</th>
+                        <th>Email Address</th>
+                        <th>System Role</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
@@ -218,71 +122,154 @@
                 <tbody>
                     @forelse($users as $user)
                         <tr>
-                            <td>{{ $user->name }}</td>
+                            <td>
+                                <div
+                                    style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                    "
+                                >
+                                    <div class="topbar-avatar">
+                                        {{
+                                            strtoupper(
+                                                substr(
+                                                    $user->name,
+                                                    0,
+                                                    1
+                                                )
+                                            )
+                                        }}
+                                    </div>
 
-                            <td>{{ $user->email }}</td>
+                                    <div>
+                                        <strong>
+                                            {{ $user->name }}
+                                        </strong>
+
+                                        @if(
+                                            $user->id
+                                            === auth()->id()
+                                        )
+                                            <div
+                                                style="
+                                                    margin-top: 3px;
+                                                    color:
+                                                        var(
+                                                            --text-secondary
+                                                        );
+                                                    font-size:
+                                                        11px;
+                                                "
+                                            >
+                                                Current account
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
 
                             <td>
-                                {{ $user->role?->display_name ?? 'No role' }}
+                                {{ $user->email }}
+                            </td>
+
+                            <td>
+                                <span
+                                    class="status-badge
+                                        status-neutral"
+                                >
+                                    {{
+                                        $user->role
+                                            ?->display_name
+                                        ?? 'No role'
+                                    }}
+                                </span>
                             </td>
 
                             <td>
                                 @if($user->is_active)
-                                    <span class="status active">
+                                    <span
+                                        class="status-badge
+                                            status-success"
+                                    >
                                         Active
                                     </span>
                                 @else
-                                    <span class="status inactive">
+                                    <span
+                                        class="status-badge
+                                            status-danger"
+                                    >
                                         Inactive
                                     </span>
                                 @endif
                             </td>
 
                             <td>
-                                {{ $user->created_at->format('d M Y') }}
+                                {{
+                                    $user->created_at
+                                        ?->format('d M Y')
+                                    ?? 'Unknown'
+                                }}
                             </td>
 
                             <td>
-                                <div class="actions">
+                                <div class="page-actions">
                                     <a
-                                        class="edit-button"
-                                        href="{{ route(
-                                            'admin.users.edit',
-                                            $user
-                                        ) }}"
+                                        href="{{
+                                            route(
+                                                'admin.users.edit',
+                                                $user
+                                            )
+                                        }}"
+                                        class="button
+                                            button-secondary"
                                     >
                                         Edit
                                     </a>
 
-                                    @if($user->id !== auth()->id())
+                                    @if(
+                                        $user->id
+                                        !== auth()->id()
+                                    )
                                         <form
                                             method="POST"
-                                            action="{{ route(
-                                                'admin.users.status',
-                                                $user
-                                            ) }}"
+                                            action="{{
+                                                route(
+                                                    'admin.users.status',
+                                                    $user
+                                                )
+                                            }}"
+                                            onsubmit="
+                                                return confirm(
+                                                    'Are you sure you want to change this user status?'
+                                                );
+                                            "
                                         >
                                             @csrf
                                             @method('PATCH')
 
                                             <button
                                                 type="submit"
-                                                class="status-button
-                                                    {{ $user->is_active
-                                                        ? 'deactivate-button'
-                                                        : 'activate-button' }}"
-                                                onclick="return confirm(
-                                                    'Change this user status?'
-                                                )"
+                                                class="button
+                                                    {{
+                                                        $user->is_active
+                                                        ? 'button-danger'
+                                                        : 'button-primary'
+                                                    }}"
                                             >
-                                                {{ $user->is_active
+                                                {{
+                                                    $user->is_active
                                                     ? 'Deactivate'
-                                                    : 'Activate' }}
+                                                    : 'Activate'
+                                                }}
                                             </button>
                                         </form>
                                     @else
-                                        <span class="current-user">
-                                            Current account
+                                        <span
+                                            class="status-badge
+                                                status-neutral"
+                                        >
+                                            You
                                         </span>
                                     @endif
                                 </div>
@@ -291,7 +278,39 @@
                     @empty
                         <tr>
                             <td colspan="6">
-                                No users were found.
+                                <div
+                                    style="
+                                        padding: 35px;
+                                        text-align: center;
+                                    "
+                                >
+                                    <strong>
+                                        No users found
+                                    </strong>
+
+                                    <p
+                                        style="
+                                            margin: 8px 0 18px;
+                                            color:
+                                                var(--text-secondary);
+                                        "
+                                    >
+                                        Create a user account and
+                                        assign a system role.
+                                    </p>
+
+                                    <a
+                                        href="{{
+                                            route(
+                                                'admin.users.create'
+                                            )
+                                        }}"
+                                        class="button
+                                            button-primary"
+                                    >
+                                        + Create User
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -300,24 +319,56 @@
         </div>
 
         @if($users->hasPages())
-            <div class="pagination">
-                <div>
+            <div
+                class="panel-body"
+                style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 15px;
+                "
+            >
+                <p
+                    style="
+                        margin: 0;
+                        color: var(--text-secondary);
+                        font-size: 13px;
+                    "
+                >
+                    Showing
+                    {{ $users->firstItem() }}
+                    to
+                    {{ $users->lastItem() }}
+                    of
+                    {{ $users->total() }}
+                    users
+                </p>
+
+                <div class="page-actions">
                     @if(!$users->onFirstPage())
-                        <a href="{{ $users->previousPageUrl() }}">
+                        <a
+                            href="{{
+                                $users->previousPageUrl()
+                            }}"
+                            class="button button-secondary"
+                        >
                             ← Previous
                         </a>
                     @endif
-                </div>
 
-                <div>
                     @if($users->hasMorePages())
-                        <a href="{{ $users->nextPageUrl() }}">
+                        <a
+                            href="{{
+                                $users->nextPageUrl()
+                            }}"
+                            class="button button-primary"
+                        >
                             Next →
                         </a>
                     @endif
                 </div>
             </div>
         @endif
-    </main>
-</body>
-</html>
+    </section>
+
+@endsection

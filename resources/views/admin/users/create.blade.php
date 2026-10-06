@@ -1,187 +1,219 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create User</title>
+@extends('layouts.app')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+@section('title', 'Create User')
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #eef4f1;
-            color: #1f2937;
-        }
+@section('page-title', 'Create User')
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 40px;
-            color: white;
-            background: #14532d;
-        }
+@section('content')
 
-        header a {
-            color: white;
-            text-decoration: none;
-        }
+    <section class="page-header">
+        <div class="page-header-copy">
+            <h2>Create a System User</h2>
 
-        main {
-            max-width: 650px;
-            margin: 40px auto;
-            padding: 35px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        }
+            <p>
+                Create a new account and assign the user’s access
+                role in the Impact Assessment System.
+            </p>
+        </div>
 
-        h1 {
-            margin-top: 0;
-        }
+        <div class="page-actions">
+            <a
+                href="{{ route('admin.users.index') }}"
+                class="button button-secondary"
+            >
+                ← Back to Users
+            </a>
+        </div>
+    </section>
 
-        label {
-            display: block;
-            margin: 18px 0 7px;
-            font-weight: bold;
-        }
+    <form
+        method="POST"
+        action="{{ route('admin.users.store') }}"
+    >
+        @csrf
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+        <section
+            class="panel"
+            style="max-width: 900px;"
+        >
+            <div class="panel-header">
+                <div>
+                    <h2>Account Information</h2>
+                </div>
 
-        .buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        button, .cancel {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        button {
-            color: white;
-            background: #15803d;
-        }
-
-        .cancel {
-            color: #334155;
-            background: #e2e8f0;
-        }
-
-        .errors {
-            margin-bottom: 20px;
-            padding: 14px;
-            color: #991b1b;
-            background: #fee2e2;
-            border-radius: 6px;
-        }
-
-        .errors ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-    </style>
-</head>
-
-<body>
-    <header>
-        <strong>Impact Assessment System</strong>
-
-        <a href="{{ route('admin.users.index') }}">
-            User Management
-        </a>
-    </header>
-
-    <main>
-        <h1>Create User</h1>
-        <p>Create an account and assign its system role.</p>
-
-        @if($errors->any())
-            <div class="errors">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                <span class="status-badge status-warning">
+                    All Fields Required
+                </span>
             </div>
-        @endif
 
-        <form method="POST" action="{{ route('admin.users.store') }}">
-            @csrf
+            <div class="panel-body">
+                <div class="form-grid">
 
-            <label for="name">Full name</label>
-            <input
-                id="name"
-                name="name"
-                type="text"
-                value="{{ old('name') }}"
-                required
+                    <div class="form-group">
+                        <label
+                            for="name"
+                            class="form-label"
+                        >
+                            Full Name *
+                        </label>
+
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            class="form-control"
+                            value="{{ old('name') }}"
+                            placeholder="Enter the user’s full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                        @error('name')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="email"
+                            class="form-label"
+                        >
+                            Email Address *
+                        </label>
+
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            class="form-control"
+                            value="{{ old('email') }}"
+                            placeholder="name@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                        @error('email')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label
+                            for="role_id"
+                            class="form-label"
+                        >
+                            System Role *
+                        </label>
+
+                        <select
+                            id="role_id"
+                            name="role_id"
+                            class="form-control"
+                            required
+                        >
+                            <option value="">
+                                Select a system role
+                            </option>
+
+                            @foreach($roles as $role)
+                                <option
+                                    value="{{ $role->id }}"
+                                    @selected(
+                                        old('role_id')
+                                        == $role->id
+                                    )
+                                >
+                                    {{ $role->display_name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <span class="form-help">
+                            The selected role controls which
+                            pages and actions the user can access.
+                        </span>
+
+                        @error('role_id')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="password"
+                            class="form-label"
+                        >
+                            Temporary Password *
+                        </label>
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-control"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <span class="form-help">
+                            Use a strong password with letters,
+                            numbers and symbols.
+                        </span>
+
+                        @error('password')
+                            <span class="form-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="password_confirmation"
+                            class="form-label"
+                        >
+                            Confirm Temporary Password *
+                        </label>
+
+                        <input
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            class="form-control"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="panel-body"
+                style="border-top: 1px solid var(--border);"
             >
-
-            <label for="email">Email address</label>
-            <input
-                id="email"
-                name="email"
-                type="email"
-                value="{{ old('email') }}"
-                required
-            >
-
-            <label for="role_id">System role</label>
-            <select id="role_id" name="role_id" required>
-                <option value="">Select a role</option>
-
-                @foreach($roles as $role)
-                    <option
-                        value="{{ $role->id }}"
-                        @selected(old('role_id') == $role->id)
+                <div class="page-actions">
+                    <button
+                        type="submit"
+                        class="button button-primary"
                     >
-                        {{ $role->display_name }}
-                    </option>
-                @endforeach
-            </select>
+                        Create User
+                    </button>
 
-            <label for="password">Temporary password</label>
-            <input
-                id="password"
-                name="password"
-                type="password"
-                required
-            >
-
-            <label for="password_confirmation">
-                Confirm temporary password
-            </label>
-            <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                required
-            >
-
-            <div class="buttons">
-                <button type="submit">Create User</button>
-
-                <a class="cancel" href="{{ route('admin.users.index') }}">
-                    Cancel
-                </a>
+                    <a
+                        href="{{ route('admin.users.index') }}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                </div>
             </div>
-        </form>
-    </main>
-</body>
-</html>
+        </section>
+    </form>
+
+@endsection
