@@ -488,4 +488,6 @@ class ImpactCalculatorServiceTest extends TestCase
             $result['technical_rating']
         );
     }
+
+    
 }
